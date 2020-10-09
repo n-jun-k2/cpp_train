@@ -1,9 +1,14 @@
 version: '3'
 services:
-  dev_cpp:
+  dev_linux:
     build:
       context: .
       dockerfile: ./Docker/alpine/Dockerfile
     tty: True
     volumes:
       - ./cpp:/tmp/project
+  dev_win:
+    build:
+      context: .
+      dockerfile: ./Docker/windows/Dockerfile
+    tty: True
