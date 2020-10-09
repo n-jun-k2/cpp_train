@@ -1,0 +1,9 @@
+version: '3'
+services:
+  dev_cpp:
+    build:
+      context: .
+      dockerfile: ./Docker/alpine/Dockerfile
+    tty: True
+    volumes:
+      - ./cpp:/tmp/project
