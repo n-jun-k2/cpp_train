@@ -31,3 +31,15 @@ FROM mcr.microsoft.com/windows:1909-amd64
 # insider版はOSのビルド番号を指定。バージョン2004(OSビルド 20201.1000)
 FROM mcr.microsoft.com/windows/insider:10.0.20201.1000-amd64
 ```
+
+# Powershell 便利コマンド
+1. ```Get-ChildItem env:``` 環境変数一覧
+
+# PakcageProviderの削除
+```
+# プロパイダーのパスを取得
+(Get-packageProvider -name nuget).ProviderPath
+
+
+
+```
