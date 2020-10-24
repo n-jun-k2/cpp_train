@@ -10,11 +10,12 @@
 
 # How to run
 
+開発者の環境へログインする手順
 ```bash
 docker-compose up -d
 
 # linux developer
-docker-compose exec dev_linux /bin/sh
+ssh -p 2020 root@localhost
 
 # windows developer
 ・・・
