@@ -2,6 +2,8 @@
 
 GitHub CLIの操作メモ
 
+[リファレンス](https://cli.github.com/manual/)
+
 # プルリクエスト作成
 
 ```bash
@@ -10,7 +12,7 @@ $ gh pr create [flags]
 # タイトル：sshのコンテナ対応
 # マージ先：master
 # 内容：コメント
-$ gh pr create -t sshのコンテナ対応 -B main -b コメント
+$ gh pr create -t "sshのコンテナ対応" -B main -b "コメント"
 ```
 
 >flagsオプションを指定しなくても対話式で作成される。
