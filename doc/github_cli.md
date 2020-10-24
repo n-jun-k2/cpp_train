@@ -2,6 +2,8 @@
 
 GitHub CLIの操作メモ
 
+[リファレンス](https://cli.github.com/manual/)
+
 # プルリクエスト作成
 
 ```bash
