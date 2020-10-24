@@ -1,16 +1,18 @@
 version: '3'
 services:
-  #dev_linux:
-  #  build:
-  #    context: .
-  #    dockerfile: ./Docker/alpine/Dockerfile
-  #  tty: True
-  #  volumes:
-  #    - ./cpp:/tmp/project
-  dev_win:
+  dev_linux:
     build:
       context: .
-      dockerfile: ./Docker/windows/Dockerfile
-    volumes:
-      - ./cpp:C:/TEMP
+      dockerfile: ./Docker/ubuntu/Dockerfile
     tty: True
+    volumes:
+      - ./cpp:/tmp/project
+    ports:
+      - "2020:22"
+  #dev_win:
+  #  build:
+  #    context: .
+  #    dockerfile: ./Docker/windows/Dockerfile
+  #  volumes:
+  #    - ./cpp:C:/TEMP
+  #  tty: True
