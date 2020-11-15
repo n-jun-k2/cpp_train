@@ -20,13 +20,13 @@ namespace metaheuristic{
 										.dtype(torch::kFloat32)
 										.layout(torch::kStrided)
 										.device(torch::kCPU)
-										.requires_grad(true);
+										.requires_grad(false);
 
 	const auto GPU_OPTIONS = torch::TensorOptions()
 										.dtype(torch::kFloat32)
 										.layout(torch::kStrided)
 										.device(torch::kCUDA)
-										.requires_grad(true);
+										.requires_grad(false);
 
 	/**
 	 * @brief Get the Available Option object
