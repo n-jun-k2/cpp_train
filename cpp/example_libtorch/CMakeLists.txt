@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.16)
+project(sample-torch)
+find_package(Torch REQUIRED)
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} ${TORCH_LIBRARIES})
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)
