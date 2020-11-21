@@ -1,15 +1,17 @@
 #include <iostream>
+#include <torch/torch.h>
 
-#include "../utils/metaheuristic.h"
-
+const auto CPU_OPTIONS = torch::TensorOptions()
+									.dtype(torch::kFloat32)
+									.layout(torch::kStrided)
+									.device(torch::kCPU)
+									.requires_grad(false);
 
 int main(){
 
-  auto option = metaheuristic::getAvailableOption();
   std::cout << "HELLO WORLD" << std::endl;
 
-  std::cout << option << std::endl;
-  auto randTensor = torch::randn({3, 3}, option);
+  auto randTensor = torch::randn({3, 3}, CPU_OPTIONS);
   std::cout << randTensor << std::endl;
 
   return 0;
