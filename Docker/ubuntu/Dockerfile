@@ -4,7 +4,7 @@ ARG SSH_PASSWORD
 
 ENV BOOST_VERSION 1.70.0
 ENV BOOST_FILE_VERSION 1_70_0
-ENV GOOGLE_TEST_VERSION 1.8.0
+ENV GOOGLE_TEST_VERSION 1.10.0
 ENV PYTORCH_VERSION 1.7.0
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -44,7 +44,7 @@ RUN curl -OL https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boo
     && unzip libtorch-shared-with-deps-${PYTORCH_VERSION}%2Bcpu.zip
 # Google testのインストール
 WORKDIR /tmp/src/googletest-release-${GOOGLE_TEST_VERSION}/build
-RUN cmake ..\
+RUN cmake .. -DCMAKE_CXX_USE_CXX11_ABI=0\
     && make \
     && make install
 # boostのインストール
@@ -58,8 +58,8 @@ RUN cp -v -r include/* /usr/local/include \
     && cp -v -r share/* /usr/local/share/
 
 # インストール作業で出た一時的なファイルを削除
-#WORKDIR /tmp
-#RUN rm -rf ./src/
+WORKDIR /tmp
+RUN rm -rf ./src/
 # 最後に作業場を参照
 WORKDIR /tmp/project
 
