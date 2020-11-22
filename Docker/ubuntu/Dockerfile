@@ -46,7 +46,8 @@ RUN cp -v -r include/* /usr/local/include \
     && cp -v -r share/* /usr/local/share/
 # Google testのインストール
 WORKDIR /tmp/src/googletest-release-${GOOGLE_TEST_VERSION}/build
-RUN cmake .. -DCMAKE_CXX_USE_CXX11_ABI=0\
+RUN sed -i -e "11i add_compile_definitions(_GLIBCXX_USE_CXX11_ABI=0)" ../CMakeLists.txt  \
+    && cmake .. \
     && make \
     && make install
 

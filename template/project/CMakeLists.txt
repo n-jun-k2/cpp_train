@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
+
+find_package(Torch REQUIRED)
+
 # Set macros
 add_definitions(
 )
@@ -49,6 +52,7 @@ if(NOT out-test)
     target_link_libraries(
         ${PROJECT_NAME}-Test PRIVATE
         ${LINK_DIRECTORIES}
+        ${TORCH_LIBRARIES}
         GTest::GTest
         GTest::Main
     )
@@ -69,6 +73,7 @@ add_executable(
 target_link_libraries(
     ${PROJECT_NAME} 
     ${LINK_DIRECTORIES}
+    ${TORCH_LIBRARIES}
 )
 target_compile_features(
     ${PROJECT_NAME} PRIVATE
