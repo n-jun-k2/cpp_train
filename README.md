@@ -15,7 +15,17 @@
 docker-compose up -d
 
 # linux developer
-ssh -p 2020 root@localhost
+docker-compose exec dev_linux /bin/bash
+# create project
+root@...: make project name=<new project name>
+# build project
+root@...: make build dir=<project name>
+
+#Executable file
+root@...: ./<project name>/build/<project name>
+
+#Run the test
+root@...: ./<project name>/build/<project name>-Test
 
 # windows developer
 ・・・
