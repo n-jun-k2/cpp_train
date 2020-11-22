@@ -8,8 +8,6 @@ services:
     volumes:
       - ./cpp:/tmp/project
       - ./template:/tmp/src/template
-    ports:
-      - "2020:22"
   #dev_win:
   #  build:
   #    context: .
