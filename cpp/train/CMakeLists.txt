@@ -59,7 +59,7 @@ if(NOT out-test)
     )
     target_compile_features(
         ${PROJECT_NAME}-Test PRIVATE
-        cxx_std_14
+        cxx_std_17
     )
 
     gtest_add_tests(TARGET ${PROJECT_NAME}-Test)
