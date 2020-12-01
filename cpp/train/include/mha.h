@@ -1,5 +1,5 @@
 /**
- * @file metaheuristic.h
+ * @file mha.h
  *
  * @author jun kawakami
  * @brief
@@ -11,9 +11,17 @@
  */
 #pragma once
 
+#include <array>
+#include <vector>
+#include <functional>
+#include <experimental/optional>
+
 #include <torch/torch.h>
 
 namespace mha{
+
+  using Scalar = torch::Scalar;
+  using Tensor = torch::Tensor;
 
 	const auto CPU_OPTIONS = torch::TensorOptions()
 										.dtype(torch::kFloat32)
@@ -36,6 +44,40 @@ namespace mha{
 		return torch::cuda::is_available() ? GPU_OPTIONS : CPU_OPTIONS;
 	}
 
+  /**
+   * @brief Generate random numbers in that range
+   *
+   * @param uplimit: upper limit
+   * @param downlimit: lower limit
+   * @param size: Output Tensor size
+   * @param options: Tensor settings
+   * @return Tensor
+   */
+  Tensor rand(const Tensor& uplimit, const Tensor& downlimit, at::IntArrayRef size, const at::TensorOptions &options){
+    // 0 ~ 1
+    auto scale = torch::rand(size, options);
+
+    // 0 start
+    const auto diff = uplimit - downlimit;
+
+    scale *= diff;
+    scale += downlimit;
+    return scale;
+  }
+
+  /**
+   * @brief Store non-zero index for each row in an array
+   *
+   * @param condition: A two-dimensional array
+   * @return std::vector<Tensor>
+   */
+  std::vector<Tensor> nonzero(const Tensor& condition){
+      auto vIndex = std::vector<torch::Tensor>(condition.sizes()[0]);
+      for(auto i = 0; i < vIndex.size(); ++i) {
+        vIndex[i] = condition[i].nonzero();
+      }
+      return vIndex;
+  }
 
 
 };
