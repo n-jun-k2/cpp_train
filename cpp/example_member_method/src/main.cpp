@@ -1,6 +1,10 @@
 #include <iostream>
 
 class [[nodiscard]]  Test {
+
+private:
+  int i = 9;
+
 public:
 	Test& operator=(const Test&) & {
 		std::cout << "lvalue" << std::endl;
@@ -12,6 +16,16 @@ public:
 	//	std::cout << "rvalue" << std::endl;
 	//	return *this;
 	//}
+
+  operator int() & {
+		std::cout << "lvalue" << std::endl;
+		return i;
+	}
+
+	operator int()&& {
+		std::cout << "rvalue" << std::endl;
+		return std::move(i);
+	}
 
 	Test& func()& {
 		std::cout << "lvalue" << std::endl;
@@ -51,6 +65,9 @@ int main() {
 	int p = 10;
 	func(p); // lvalue
 	func(5); // rvalue lvalue
+
+	func(x); // lvalue rvalue lvalue
+	func(Test()); // rvalue rvalue lvalue
 
 	return 0;
 }
