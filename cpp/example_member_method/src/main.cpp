@@ -1,4 +1,3 @@
-#include "../include/sum.h"
 #include <iostream>
 
 class [[nodiscard]]  Test {
@@ -25,6 +24,17 @@ public:
 	}
 };
 
+
+void func(const int& i) {
+	std::cout << "lvalue" << i << std::endl;
+}
+
+void func(int&& i) {
+	int ip = std::move(i);
+	std::cout << "rvalue" << ip << std::endl;
+	func(ip);
+}
+
 int main() {
 
 	Test x;
@@ -37,6 +47,10 @@ int main() {
 	Test()
 		.func();// rvalue
 
+
+	int p = 10;
+	func(p); // lvalue
+	func(5); // rvalue lvalue
 
 	return 0;
 }
