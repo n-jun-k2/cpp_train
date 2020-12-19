@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(cpptrain2)
+project(example_member_method)
 
 
 find_package(Torch REQUIRED)
