@@ -17,12 +17,12 @@ public:
 	//	return *this;
 	//}
 
-  operator int() & {
+  operator int() const & {
 		std::cout << "lvalue" << std::endl;
 		return i;
 	}
 
-	operator int()&& {
+	operator int() const && {
 		std::cout << "rvalue" << std::endl;
 		return std::move(i);
 	}
@@ -49,6 +49,33 @@ void func(int&& i) {
 	func(ip);
 }
 
+template <typename Type>
+class ImplicitCast {
+  protected:
+    Type value;
+  public:
+    explicit ImplicitCast(Type arg) : value(arg) {}
+    ImplicitCast()          = delete;
+    virtual ~ImplicitCast() = default;
+
+    operator Type() const & {
+      std::cout << "lvalue" << std::endl;
+      return value;
+    }
+
+    operator Type() const && {
+      std::cout << "rvalue" << std::endl;
+      return value;
+    }
+};
+
+class ResorceTest : public ImplicitCast<int> {
+  public:
+    ResorceTest() = delete;
+    ~ResorceTest() = default;
+    explicit ResorceTest(int v) : ImplicitCast(v) {}
+};
+
 int main() {
 
 	Test x;
@@ -68,6 +95,11 @@ int main() {
 
 	func(x); // lvalue rvalue lvalue
 	func(Test()); // rvalue rvalue lvalue
+
+  ResorceTest test(11);
+
+  func(test);
+  func(ResorceTest(12));
 
 	return 0;
 }
