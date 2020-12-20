@@ -6,6 +6,13 @@ private:
   int i = 9;
 
 public:
+
+  Test() = default;
+
+  Test(const Test&) {
+    std::cout << "Copy" << std::endl;
+  }
+
 	Test& operator=(const Test&) & {
 		std::cout << "lvalue" << std::endl;
 		return *this;
@@ -16,6 +23,9 @@ public:
 	//	std::cout << "rvalue" << std::endl;
 	//	return *this;
 	//}
+
+  Test(Test&&) = default;
+  Test& operator=(Test&&) = default;
 
   operator int() const & {
 		std::cout << "lvalue" << std::endl;
@@ -98,8 +108,8 @@ int main() {
 
   ResorceTest test(11);
 
-  func(test);
-  func(ResorceTest(12));
+  func(test); // lvalue rvalue11 lvalue11
+  func(ResorceTest(12)); // rvalue rvalue12 lvalue12
 
 	return 0;
 }
