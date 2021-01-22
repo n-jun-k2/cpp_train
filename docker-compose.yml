@@ -3,7 +3,7 @@ services:
   dev_linux:
     build:
       context: .
-      dockerfile: ./Docker/ubuntu/Dockerfile
+      dockerfile: ./docker/ubuntu/Dockerfile
     tty: True
     volumes:
       - ./cpp:/tmp/project
