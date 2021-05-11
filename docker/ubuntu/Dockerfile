@@ -28,7 +28,7 @@ RUN sed -i 's@archive.ubuntu.com@ftp.jaist.ac.jp/pub/Linux@g' /etc/apt/sources.l
     && mkdir /tmp/src
 # BoostとGoogle testとlibtorchをダウンロードし解凍する。
 WORKDIR /tmp/src
-RUN curl -OL https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boost_${BOOST_FILE_VERSION}.tar.gz\
+RUN curl -OL https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/boost_${BOOST_FILE_VERSION}.tar.gz\
     && tar -zxvf boost_${BOOST_FILE_VERSION}.tar.gz \
     && curl -OL https://github.com/google/googletest/archive/release-${GOOGLE_TEST_VERSION}.tar.gz \
     && tar -zxvf release-${GOOGLE_TEST_VERSION}.tar.gz \
