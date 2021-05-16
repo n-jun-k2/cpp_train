@@ -54,5 +54,6 @@ int main() {
 
   std::cout << condition.all() << std::endl;
 
+
   return 0;
 }
