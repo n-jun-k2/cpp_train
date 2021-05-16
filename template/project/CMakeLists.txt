@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.16)
 
 find_package(Torch REQUIRED)
 
+set(cpp_version cxx_std_17)
+
 # Set macros
 add_definitions(
 )
@@ -58,7 +60,7 @@ if(NOT out-test)
     )
     target_compile_features(
         ${PROJECT_NAME}-Test PRIVATE
-        cxx_std_14
+        ${cpp_version}
     )
 
     gtest_add_tests(TARGET ${PROJECT_NAME}-Test)
@@ -77,5 +79,5 @@ target_link_libraries(
 )
 target_compile_features(
     ${PROJECT_NAME} PRIVATE
-    cxx_std_14
+    ${cpp_version}
 )
