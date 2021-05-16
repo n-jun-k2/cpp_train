@@ -30,7 +30,7 @@ union WrapContainer{
 template<
   typename E,
   template<typename T, typename Allocator = std::allocator<T>>class Container = std::vector>
-struct Pool {
+struct Pool : public std::enable_shared_from_this<Pool<E, Container>> {
 
   WrapContainer<E, Container> buffer;
   Resource<E>* firstAvailable;
@@ -50,6 +50,10 @@ struct Pool {
     std::prev(std::end(buffer.wrapper))->next = nullptr;
   }
 
+  static std::shared_ptr<Pool<E, Container>> createPool(const uint32_t size) {
+    return std::make_shared<Pool<E, Container>>(size);
+  }
+
   std::shared_ptr<E> getInstance() {
     assert(firstAvailable != nullptr);
 
@@ -57,30 +61,30 @@ struct Pool {
     firstAvailable = firstAvailable->next;
 
     struct _Release {
-      Pool& pool;
-      explicit _Release(Pool& pPool)
+      std::shared_ptr<Pool<E, Container>> pool;
+      explicit _Release(std::shared_ptr<Pool<E, Container>> pPool)
         : pool(pPool) {}
       void operator()(E* pItem){
         std::cout << "release..." << std::endl;
         auto releaseResource = reinterpret_cast<Resource<E>*>(pItem);
 
-        if(pool.firstAvailable == nullptr) {
-          pool.firstAvailable = releaseResource;
-          pool.firstAvailable->next = nullptr;
+        if(pool->firstAvailable == nullptr) {
+          pool->firstAvailable = releaseResource;
+          pool->firstAvailable->next = nullptr;
           return;
         }
 
-        if (releaseResource < pool.firstAvailable) {
-          releaseResource->next = pool.firstAvailable;
-          pool.firstAvailable = releaseResource;
+        if (releaseResource < pool->firstAvailable) {
+          releaseResource->next = pool->firstAvailable;
+          pool->firstAvailable = releaseResource;
         } else {
-          releaseResource->next = pool.firstAvailable->next;
-          pool.firstAvailable->next = releaseResource;
+          releaseResource->next = pool->firstAvailable->next;
+          pool->firstAvailable->next = releaseResource;
         }
       }
     };
 
-    return std::shared_ptr<E>(element, _Release(*this));
+    return std::shared_ptr<E>(element, _Release(this->shared_from_this()));
   }
 
   E* data() {
