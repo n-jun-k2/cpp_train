@@ -50,6 +50,7 @@ struct Manager {
 
   template <class T, class _Dx>
   Manager(T* _Px, _Dx _Dt) {
+    value = _Px;
     resource = new CustomeResource(_Px, std::move(_Dt));
   }
 
@@ -57,18 +58,23 @@ struct Manager {
     resource->destroy();
     resource->destroy_this();
   }
+  element_type* get() const noexcept {
+    return value;
+  }
 };
 
 int main() {
   std::cout << "Hello World" << std::endl;
 
   Manager<int> obj(new int(2), [](int* ptr){
-    std::cout << "FUNC" << std::endl;
+    std::cout << "destroy func" << std::endl;
     delete ptr;
   });
 
   std::cout << sizeof(int) << std::endl;
   std::cout << sizeof(obj) << std::endl;
+
+  std::cout << "obj.value:" << *obj.get() << std::endl;
 
 
   return 0;
