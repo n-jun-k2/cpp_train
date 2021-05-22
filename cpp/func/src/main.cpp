@@ -45,6 +45,7 @@ struct Manager {
 
   template <class T>
   explicit Manager(T* _Px) {
+    value = _Px;
     resource = new SimpleResource(_Px);
   }
 
