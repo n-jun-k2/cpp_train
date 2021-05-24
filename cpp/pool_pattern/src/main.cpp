@@ -6,7 +6,6 @@
 struct Point {
   double x;
   double y;
-  Point() = delete;
   Point(double _x, double _y):x(_x),y(_y){}
 };
 
@@ -18,9 +17,11 @@ int main() {
   auto pointpool = Pool<Point, std::vector>::createPool(5, Point(2,2));
 
   {
-    auto point1 = pointpool->getInstance(2, 2);
+    auto point1 = pointpool->getInstance();
     std::cout << point1->x << ":" << point1->y << std::endl;
-    auto point2 = pointpool->getInstance(2, 2);
+    auto point2 = pointpool->getInstance([](Point& ptr) {
+      std::cout << "custom deleter... one" << std::endl;
+    });
     std::cout << point2->x << ":" << point2->y << std::endl;
     auto point3 = pointpool->getInstance(2, 2);
     std::cout << point3->x << ":" << point3->y << std::endl;

@@ -68,7 +68,7 @@ class Pool : public std::enable_shared_from_this<Pool<E, Container>> {
     }
   }
 
-  template <typename _Rx, typename... _Args>
+  template <typename _Rx, typename... _Args, class = std::enable_if_t<std::is_constructible_v<Element_Type, _Args...>>>
   std::shared_ptr<Element_Type> _getInstance(_Rx rel, _Args&& ...args) {
     assert(firstAvailable != nullptr);
 
@@ -76,6 +76,16 @@ class Pool : public std::enable_shared_from_this<Pool<E, Container>> {
     firstAvailable = firstAvailable->next;
 
     *element = Element_Type(std::forward<_Args>(args)...);
+
+    return std::shared_ptr<Element_Type>(element, std::move(rel));
+  }
+
+  template <typename _Rx>
+  std::shared_ptr<Element_Type> _getInstance(_Rx rel, ...) {
+    assert(firstAvailable != nullptr);
+
+    std::add_pointer_t<Element_Type> element = &firstAvailable->live;
+    firstAvailable = firstAvailable->next;
 
     return std::shared_ptr<Element_Type>(element, std::move(rel));
   }
@@ -142,7 +152,7 @@ public:
     return this->_getInstance(_Release(this->shared_from_this()), args...);
   }
 
-  E* data() {
+  Element_Type* data() {
     return buffer.raw.data();
   }
 
