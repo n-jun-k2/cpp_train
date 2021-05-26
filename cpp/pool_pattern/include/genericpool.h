@@ -7,7 +7,7 @@
 
 template<typename E>
 union Resource {
-  std::remove_pointer_t<E> live;
+  E live;
   std::add_pointer_t<Resource> next;
 };
 
@@ -33,9 +33,12 @@ union WrapContainer{
 
 template<typename E, template<typename T, typename Allocator = std::allocator<T>>class Container = std::vector>
 class Pool : public std::enable_shared_from_this<Pool<E, Container>> {
+  static_assert(sizeof(E) >= sizeof(Resource<E>*), "");
 
-  using Element_Type = std::remove_pointer_t<E>;
+public:
+  using Element_Type = E;
 
+private:
   WrapContainer<Element_Type, Container> buffer;
   Resource<Element_Type>* firstAvailable;
 
@@ -138,8 +141,8 @@ public:
     return this->_getInstance(_CRelease(this->shared_from_this(), std::move(deleter)), args...);
   }
 
-  template<typename... _Args>
-  std::shared_ptr<Element_Type> getInstance(_Args&& ...args) {
+  template<class ...Args>
+  std::shared_ptr<Element_Type> getInstance(Args&&... args) {
     struct _Release {
       std::shared_ptr<Pool<Element_Type, Container>> pool;
       explicit _Release(std::shared_ptr<Pool<Element_Type, Container>> pPool)
@@ -153,6 +156,7 @@ public:
   }
 
   Element_Type* data() {
+    assert(firstAvailable == nullptr);
     return buffer.raw.data();
   }
 

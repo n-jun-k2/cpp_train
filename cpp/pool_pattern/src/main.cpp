@@ -38,17 +38,23 @@ int main() {
     std::cout << point5->x << ":" << point5->y << std::endl;
   }
 
-  auto intpool = Pool<int>::createPool(5);
+  using __type = uint64_t*;
+  std::cout << "type size : " << sizeof(__type) << std::endl;
+  auto intpool = Pool<__type>::createPool(5);
 
   {
     auto pInt1 = intpool->getInstance();
-  }
-
-
-  auto intpointpool = Pool<int*>::createPool(5);
-
-  {
-    auto pInt1 = intpool->getInstance();
+    *pInt1 = new uint64_t(10);
+    std::cout << **pInt1 << std::endl;
+    auto pInt2 = intpool->getInstance([](typename Pool<__type>::Element_Type &p){
+      std::cout << "int custome deleter " << std::endl;
+    });
+    struct Deleter {
+      void operator()(typename Pool<__type>::Element_Type& p) {
+        std::cout << "int custom functor" << std::endl;
+      }
+    };
+    auto pInt3 = intpool->getInstance(Deleter());
   }
 
   return 0;
