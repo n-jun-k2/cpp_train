@@ -81,7 +81,7 @@ class Pool : public std::enable_shared_from_this<Pool<E, Container>> {
   }
 
   template <typename _Rx>
-  std::shared_ptr<Element_Type> _getInstance(_Rx rel, ...) {
+  std::shared_ptr<Element_Type> _getInstance(_Rx rel) {
     assert(firstAvailable != nullptr);
 
     std::add_pointer_t<Element_Type> element = &firstAvailable->live;

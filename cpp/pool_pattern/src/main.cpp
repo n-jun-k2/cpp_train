@@ -38,5 +38,18 @@ int main() {
     std::cout << point5->x << ":" << point5->y << std::endl;
   }
 
+  auto intpool = Pool<int>::createPool(5);
+
+  {
+    auto pInt1 = intpool->getInstance();
+  }
+
+
+  auto intpointpool = Pool<int*>::createPool(5);
+
+  {
+    auto pInt1 = intpool->getInstance();
+  }
+
   return 0;
 }
