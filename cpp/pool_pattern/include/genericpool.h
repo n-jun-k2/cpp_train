@@ -183,7 +183,7 @@ public:
 
   template <typename _Ty = Element_Type, typename _Dx, typename... _Args,
             std::enable_if_t<std::is_invocable_v<_Dx, Element_Type &>> * = nullptr>
-  InstancePtr getInstance(_Dx deleter = std::default_delete<_Ty>(), _Args &&...args)
+  InstancePtr getInstance(_Dx deleter, _Args &&...args)
   {
     struct _CRelease
     {
