@@ -78,21 +78,18 @@ private:
     }
   }
 
-  template <class _Ty, class = std::enable_if_t<std::is_pointer_v<_Ty> == true>>
-  std::remove_pointer_t<_Ty> *_GetReference(_Ty value) noexcept
+  template <class _T = Element_Type, class _Rx,
+            std::enable_if_t<std::is_pointer_v<_T>> * = nullptr>
+  InstancePtr make_shared(_T *element, _Rx rel)
   {
-    return value;
+    return InstancePtr(*element, std::move(rel));
   }
 
-  template <class _Ty, class = std::enable_if_t<std::is_pointer_v<_Ty> == false>>
-  _Ty *_GetReference(_Ty &value) noexcept
+  template <class _T = Element_Type, class _Rx,
+            std::enable_if_t<!std::is_pointer_v<_T>> * = nullptr>
+  InstancePtr make_shared(_T *element, _Rx rel)
   {
-    return &value;
-  }
-
-  Element_NonPointer_Type *_GetLive()
-  {
-    return _GetReference(firstAvailable->live);
+    return InstancePtr(element, std::move(rel));
   }
 
   template <typename _Rx, typename _InitFunc>
@@ -100,25 +97,25 @@ private:
   {
     assert(firstAvailable != nullptr);
 
-    auto element = this->_GetLive();
+    auto element = &firstAvailable->live;
     firstAvailable = firstAvailable->next;
-    init(&element);
-    return InstancePtr(element, std::move(rel));
+    init(element);
+    return make_shared(element, std::move(rel));
   }
 
   template <typename _T = Element_Type, typename _Rx, typename... _Args,
             std::enable_if_t<is_class_constructible<_T, _Args...>::value> * = nullptr>
   InstancePtr _getInstance(_Rx rel, _Args &&...args)
   {
-    return this->__getInstance(std::move(rel), [&](_T **ptr)
-                               { **ptr = _T(std::forward<_Args>(args)...); });
+    return this->__getInstance(std::move(rel), [&](_T *ptr)
+                               { *ptr = _T(std::forward<_Args>(args)...); });
   }
 
   template <typename _T = Element_Type, typename _Rx, typename... _Args,
             std::enable_if_t<std::is_pointer_v<_T>> * = nullptr>
   InstancePtr _getInstance(_Rx rel, _Args &&...args)
   {
-    return this->__getInstance(std::move(rel), [&](Element_NonPointer_Type **ptr)
+    return this->__getInstance(std::move(rel), [&](_T *ptr)
                                { *ptr = new Element_NonPointer_Type(std::forward<_Args>(args)...); });
   }
 
@@ -139,22 +136,22 @@ public:
   {
     this->_init();
   }
-  explicit Pool(std::initializer_list<Resource<Element_Type>> il) noexcept
+  explicit Pool(std::initializer_list<Resource<E>> il) noexcept
       : buffer(il)
   {
     this->_init();
   }
-  explicit Pool(std::initializer_list<Element_Type> il) noexcept
+  explicit Pool(std::initializer_list<E> il) noexcept
       : buffer(il)
   {
     this->_init();
   }
-  explicit Pool(const uint32_t n, const Resource<Element_Type> &value) noexcept
+  explicit Pool(const uint32_t n, const Resource<E> &value) noexcept
       : buffer(n, value)
   {
     this->_init();
   }
-  explicit Pool(const uint32_t n, const Element_Type &value) noexcept
+  explicit Pool(const uint32_t n, const E &value) noexcept
       : buffer(n, value)
   {
     this->_init();
@@ -164,24 +161,24 @@ public:
   {
     return std::make_shared<Pool<Element_Type, Container>>(size);
   }
-  static std::shared_ptr<Pool<Element_Type, Container>> createPool(std::initializer_list<Resource<Element_Type>> il) noexcept
+  static std::shared_ptr<Pool<Element_Type, Container>> createPool(std::initializer_list<Resource<E>> il) noexcept
   {
     return std::make_shared<Pool<Element_Type, Container>>(il);
   }
-  static std::shared_ptr<Pool<Element_Type, Container>> createPool(std::initializer_list<Element_Type> il) noexcept
+  static std::shared_ptr<Pool<Element_Type, Container>> createPool(std::initializer_list<E> il) noexcept
   {
     return std::make_shared<Pool<Element_Type, Container>>(il);
   }
-  static std::shared_ptr<Pool<Element_Type, Container>> createPool(const uint32_t n, const Resource<Element_Type> &value) noexcept
+  static std::shared_ptr<Pool<Element_Type, Container>> createPool(const uint32_t n, const Resource<E> &value) noexcept
   {
     return std::make_shared<Pool<Element_Type, Container>>(n, value);
   }
-  static std::shared_ptr<Pool<Element_Type, Container>> createPool(const uint32_t n, const Element_Type &value) noexcept
+  static std::shared_ptr<Pool<Element_Type, Container>> createPool(const uint32_t n, const E &value) noexcept
   {
     return std::make_shared<Pool<Element_Type, Container>>(n, value);
   }
 
-  template <typename _Ty = Element_Type, typename _Dx, typename... _Args,
+  template <typename _Dx, typename... _Args,
             std::enable_if_t<std::is_invocable_v<_Dx, Element_Type &>> * = nullptr>
   InstancePtr getInstance(_Dx deleter, _Args &&...args)
   {
