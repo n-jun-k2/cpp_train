@@ -2,8 +2,9 @@
 .PHONY: clean build
 
 clean:
-	@echo "\e[36m  _/_/_/_/_/_/ Clean _/_/_/_/_/_/ \e[m"
+	@echo "\e[36m  _/_/_/_/_/_/ Clean Start _/_/_/_/_/_/ \e[m"
 	-rm -r ./$(dir)/build
+	@echo "\e[36m  _/_/_/_/_/_/ Clean End _/_/_/_/_/_/ \e[m"
 
 build: 
 	@echo "\e[36m  _/_/_/_/_/_/ BUILD START _/_/_/_/_/_/ \e[m"

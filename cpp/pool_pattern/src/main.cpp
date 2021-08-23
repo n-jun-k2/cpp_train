@@ -25,7 +25,7 @@ struct Point {
 };
 
 template<typename _T, typename _D, typename _I>
-std::shared_ptr<std::remove_pointer_t<_T>> create_ptr(WrapContainer<_T, std::vector>& container, _I init, _D deleter) {
+std::shared_ptr<std::remove_pointer_t<_T>> create_ptr(Pool<_T, std::vector>& container, _I init, _D deleter) {
   auto pointer = _GetReference(container.wrapper[0].live);
   init(pointer);
   struct _R {
@@ -40,7 +40,7 @@ std::shared_ptr<std::remove_pointer_t<_T>> create_ptr(WrapContainer<_T, std::vec
 }
 
 template<typename _T, typename _D, typename _I>
-std::shared_ptr<std::remove_pointer_t<_T>> wrap_create_ptr(WrapContainer<_T, std::vector>& container, _I init, _D deleter) {
+std::shared_ptr<std::remove_pointer_t<_T>> wrap_create_ptr(Pool<_T, std::vector>& container, _I init, _D deleter) {
   return create_ptr(container, std::move(init), std::move(deleter));
 }
 
@@ -49,7 +49,7 @@ int main() {
   std::cout << "Point size: " << sizeof(Point) << std::endl; //Point size: 16
   std::cout << "Resource<Point> size: " << sizeof(Resource<Point>) << std::endl; // Resource<Point> size: 16
 
-  auto pointpool = Pool<Point, std::vector>::createPool(5, Point(2,2));
+  auto pointpool = Pool<Point, std::vector>::createPool(Pool<Point, std::vector>::Buffer(5));
 
   {
     auto point1 = pointpool->getInstance();
@@ -74,7 +74,7 @@ int main() {
   }
 
   using __type = Point*;
-  auto intpool = Pool<__type>::createPool(5);
+  auto intpool = Pool<__type>::createPool(Pool<__type>::Buffer(5));
 
   {
     auto pInt1 = intpool->getInstance([](typename Pool<__type>::Element_Type &p) {

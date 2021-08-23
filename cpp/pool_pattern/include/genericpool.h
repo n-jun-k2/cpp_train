@@ -15,45 +15,30 @@ union Resource
   std::add_pointer_t<Resource> next;
 };
 
-template <typename E,
-          template <typename T, typename Allocator = std::allocator<T>> class Container = std::vector>
-union WrapContainer
-{
-  Container<Resource<E>> wrapper;
-  Container<E> raw;
-
-  WrapContainer() : wrapper() {}
-  WrapContainer(const uint32_t size) : raw(size) {}
-  WrapContainer(std::initializer_list<Resource<E>> init) : wrapper(std::begin(init), std::end(init)) {}
-  WrapContainer(std::initializer_list<E> init) : raw(std::begin(init), std::end(init)) {}
-  WrapContainer(const uint32_t n, const Resource<E> &value) : wrapper(n, value) {}
-  WrapContainer(const uint32_t n, const E &value) : raw(n, value) {}
-  ~WrapContainer() {}
-};
-
 template <typename E, template <typename T, typename Allocator = std::allocator<T>> class Container = std::vector>
 class Pool : public std::enable_shared_from_this<Pool<E, Container>>
 {
 public:
   using Element_Type = E;
   using Element_NonPointer_Type = std::remove_pointer_t<Element_Type>;
+  using Buffer = Container<Resource<E>>;
   using InstancePtr = std::shared_ptr<Element_NonPointer_Type>;
 
 private:
-  WrapContainer<Element_Type, Container> buffer;
+  Buffer buffer;
   Resource<Element_Type> *firstAvailable;
 
   void _init() noexcept
   {
-    firstAvailable = &buffer.wrapper[0];
+    firstAvailable = &buffer[0];
 
-    auto it = std::begin(buffer.wrapper);
-    auto end = std::prev(std::end(buffer.wrapper), 2);
+    auto it = std::begin(buffer);
+    auto end = std::prev(std::end(buffer), 2);
     for (; it <= end; it = std::next(it))
     {
       it->next = &(*std::next(it));
     }
-    std::prev(std::end(buffer.wrapper))->next = nullptr;
+    std::prev(std::end(buffer))->next = nullptr;
   }
 
   void _Releasepool(Resource<Element_Type> *item) noexcept
@@ -131,53 +116,16 @@ public:
   Pool() = delete;
   ~Pool() = default;
 
-  explicit Pool(const uint32_t size) noexcept
-      : buffer(size)
-  {
-    this->_init();
-  }
-  explicit Pool(std::initializer_list<Resource<E>> il) noexcept
-      : buffer(il)
-  {
-    this->_init();
-  }
-  explicit Pool(std::initializer_list<E> il) noexcept
-      : buffer(il)
-  {
-    this->_init();
-  }
-  explicit Pool(const uint32_t n, const Resource<E> &value) noexcept
-      : buffer(n, value)
-  {
-    this->_init();
-  }
-  explicit Pool(const uint32_t n, const E &value) noexcept
-      : buffer(n, value)
+  explicit Pool(const Container<Resource<E>>& init) noexcept
+      : buffer(init)
   {
     this->_init();
   }
 
-  static std::shared_ptr<Pool<Element_Type, Container>> createPool(const uint32_t size) noexcept
+  static std::shared_ptr<Pool<Element_Type, Container>> createPool(const Container<Resource<E>>& init) noexcept
   {
-    return std::make_shared<Pool<Element_Type, Container>>(size);
+    return std::make_shared<Pool<Element_Type, Container>>(init);
   }
-  static std::shared_ptr<Pool<Element_Type, Container>> createPool(std::initializer_list<Resource<E>> il) noexcept
-  {
-    return std::make_shared<Pool<Element_Type, Container>>(il);
-  }
-  static std::shared_ptr<Pool<Element_Type, Container>> createPool(std::initializer_list<E> il) noexcept
-  {
-    return std::make_shared<Pool<Element_Type, Container>>(il);
-  }
-  static std::shared_ptr<Pool<Element_Type, Container>> createPool(const uint32_t n, const Resource<E> &value) noexcept
-  {
-    return std::make_shared<Pool<Element_Type, Container>>(n, value);
-  }
-  static std::shared_ptr<Pool<Element_Type, Container>> createPool(const uint32_t n, const E &value) noexcept
-  {
-    return std::make_shared<Pool<Element_Type, Container>>(n, value);
-  }
-
   template <typename _Dx, typename... _Args,
             std::enable_if_t<std::is_invocable_v<_Dx, Element_Type &>> * = nullptr>
   InstancePtr getInstance(_Dx deleter, _Args &&...args)
