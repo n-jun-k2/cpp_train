@@ -50,16 +50,13 @@ namespace wrap {
       }
   };
 
-  template < template< typename E, typename Allocator = std::allocator<E> > class Container = std::vector>
-  class ManagerWrapper {
-    public:
-      Container<Room> vec_room;
-      Container<Container<Object>> mtx_object;
-      Container<Service> vec_service;
-      Manager manager;
-      std::function<void(ManagerWrapper&)> action = [](auto&){};
+  template<class T>
+  class MethodChain {
+    protected:
+      std::function<void(T&)> action = __Initilize;
+      static void __Initilize(T&){}
 
-      void addAction(std::function<void(ManagerWrapper&)> next) {
+      void addAction(std::function<void(T&)> next) {
         const auto& prev = action;
         action = [=](auto& item){
           prev(item);
@@ -67,20 +64,38 @@ namespace wrap {
         };
       }
 
+      void execute(T& self) {
+        action(self);
+      }
+
+      void clear() {
+        action = __Initilize;
+      }
+
+  };
+
+  template < template< typename E, typename Allocator = std::allocator<E> > class Container = std::vector>
+  class ManagerWrapper : MethodChain<ManagerWrapper<Container>>{
+    public:
+      Container<Room> vec_room;
+      Container<Container<Object>> mtx_object;
+      Container<Service> vec_service;
+      Manager manager;
+
     public:
       explicit ManagerWrapper() = default;
       ManagerWrapper(const ManagerWrapper& other) = delete;
       ManagerWrapper& operator=(const ManagerWrapper& other) = delete;
 
       ManagerWrapper& roomInit(const int size) {
-        addAction([=](auto& other){
+        this->addAction([=](auto& other){
           other.vec_room.resize(size);
           other.mtx_object.resize(size);
         });
         return *this;
       }
       ManagerWrapper& objectsInit(const int size, const int offset = 0, const unsigned int count = 0) {
-        addAction([=](auto& other){
+        this->addAction([=](auto& other){
           foreach<Container<Object>>(other.mtx_object, [&](Container<Object>& item){
             item.resize(size);
           }, offset, count);
@@ -88,7 +103,7 @@ namespace wrap {
         return *this;
       }
       ManagerWrapper& objectsUpdate(std::function<void(ObjectWrap&&)> update, const int offset = 0, const unsigned int count = 0) {
-        addAction([=](auto& other){
+        this->addAction([=](auto& other){
           for (auto& row : other.mtx_object) {
             foreach<Object>(row, [&](Object& item) {
               update(ObjectWrap(item));
@@ -98,13 +113,13 @@ namespace wrap {
         return *this;
       }
       ManagerWrapper& flush() {
-        action(*this);
+        this->execute(*this);
         containerToCPtr(manager.roomCount, &manager.pRoomList, vec_room);
         containerToCPtr(manager.serviceCount, &manager.pServiceList, vec_service);
         for (auto i = 0; i < vec_room.size(); ++i) {
           containerToCPtr(vec_room[i].objectCount, &vec_room[i].pObjectList, mtx_object[i]);
         }
-        action = [](auto&){};
+        this->clear();
         return *this;
       }
   };
