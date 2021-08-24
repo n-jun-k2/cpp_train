@@ -6,22 +6,11 @@
 struct Point {
   double x;
   double y;
-  Point() :x(0), y(0) {
-    std::cout << "----point instance!!-----" << std::endl;
-  }
+  Point() = default;
   Point(double _x, double _y):x(_x),y(_y){
     std::cout << "----point instance!!-----" << std::endl;
   }
-  ~Point() {
-    std::cout << "----point delete!!------" << std::endl;
-  }
-  Point(const Point& p) {
-    std::cout << "copy constructor"  << std::endl;
-  }
-  Point& operator=(const Point& p) {
-    std::cout << "operator copy" << std::endl;
-    return *this;
-  }
+  ~Point() = default;
 };
 
 template<typename _T, typename _D, typename _I>
@@ -49,7 +38,7 @@ int main() {
   std::cout << "Point size: " << sizeof(Point) << std::endl; //Point size: 16
   std::cout << "Resource<Point> size: " << sizeof(Resource<Point>) << std::endl; // Resource<Point> size: 16
 
-  auto pointpool = Pool<Point, std::vector>::createPool(Pool<Point, std::vector>::Buffer(5));
+  auto pointpool = Pool<Point, std::vector>::createPool(5);
 
   {
     auto point1 = pointpool->getInstance();
@@ -74,7 +63,7 @@ int main() {
   }
 
   using __type = Point*;
-  auto intpool = Pool<__type>::createPool(Pool<__type>::Buffer(5));
+  auto intpool = Pool<__type>::createPool(5);
 
   {
     auto pInt1 = intpool->getInstance([](typename Pool<__type>::Element_Type &p) {

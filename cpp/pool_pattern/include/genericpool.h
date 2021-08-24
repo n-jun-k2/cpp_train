@@ -12,7 +12,7 @@ template <typename E>
 union Resource
 {
   E live;
-  std::add_pointer_t<Resource> next;
+  std::add_pointer_t<Resource<E>> next;
 };
 
 template <typename E, template <typename T, typename Allocator = std::allocator<T>> class Container = std::vector>
@@ -116,15 +116,15 @@ public:
   Pool() = delete;
   ~Pool() = default;
 
-  explicit Pool(const Container<Resource<E>>& init) noexcept
-      : buffer(init)
+  explicit Pool(const int size) noexcept
+      : buffer(size)
   {
     this->_init();
   }
 
-  static std::shared_ptr<Pool<Element_Type, Container>> createPool(const Container<Resource<E>>& init) noexcept
+  static std::shared_ptr<Pool<Element_Type, Container>> createPool(const int size) noexcept
   {
-    return std::make_shared<Pool<Element_Type, Container>>(init);
+    return std::make_shared<Pool<Element_Type, Container>>(size);
   }
   template <typename _Dx, typename... _Args,
             std::enable_if_t<std::is_invocable_v<_Dx, Element_Type &>> * = nullptr>
