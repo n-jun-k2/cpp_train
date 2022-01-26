@@ -27,46 +27,46 @@ double mean_1_15(const double _X, const double x, const double t, const double N
   return ((current - 1.0) / current) * _X + (1.0 / current) * x;
 }
 
-template<class ST, class RT>
+template<class AT, class RT, class QT>
 class eps_greedy {
   private:
+    QT& Q;
     double EPS;
     std::random_device device;
     std::ranlux48 engine;
-    std::vector<ST> ACTION_ALL;
-    std::unordered_map<ST, RT>& Q;
+    std::vector<AT> ACTION_ALL;
     std::uniform_real_distribution<> r_dist;
     std::uniform_int_distribution<> i_dist;
   public:
-    eps_greedy(std::unordered_map<ST, RT>& q, const double eps, std::vector<ST> actions)
+    eps_greedy(QT& q, const double eps, std::vector<AT> actions)
     :Q(q), EPS(eps), device(), engine(device()), ACTION_ALL(actions), i_dist(0, ACTION_ALL.size()), r_dist(0.0, 1.0)
     {}
 
-    ST operator()() {
+    AT operator()() {
       auto max_idx = std::distance(std::begin(Q), std::max_element(std::begin(Q), std::end(Q), [](const auto& a, const auto& b){return a.second > b.second;}));
       if (EPS > r_dist(engine))
         return ACTION_ALL[i_dist(engine)];
       else
-        return static_cast<ST>(max_idx);
+        return static_cast<AT>(max_idx);
     }
 };
 
-template<class ST, class RT>
+template<class AT, class RT, class QT>
 class ucb_1 {
   private:
     double inf;
     unsigned long long N;
-    std::vector<ST> ACTION_ALL;
-    std::unordered_map<ST, unsigned long long> NJ;
-    std::unordered_map<ST, double> scores;
-    std::unordered_map<ST, RT>& X;
+    std::vector<AT> ACTION_ALL;
+    std::unordered_map<AT, unsigned long long> NJ;
+    std::unordered_map<AT, double> scores;
+    QT& X;
 
   public:
 
-    ucb_1(std::unordered_map<ST, RT>& q, const double inf, const std::vector<ST>& actions)
+    ucb_1(QT& q, const double inf, const std::vector<AT>& actions)
     :X(q), inf(inf), N(0), ACTION_ALL(actions) {}
 
-    ST operator()() {
+    AT operator()() {
 
       /* select all options once. */
       if (N < ACTION_ALL.size()) return ACTION_ALL[N++];
@@ -84,8 +84,22 @@ class ucb_1 {
     }
 };
 
+template<class AT, class RT, class QT>
+class BayesSampling {
+  private:
+    QT& Q;
+    std::vector<AT> ACTION_ALL;
+  public:
+    BayesSampling(QT& q, const std::vector<AT>& actions)
+    : Q(q), ACTION_ALL(actions) {}
+
+    AT operator()() {
+
+    }
+};
+
 /*多腕バンディット問題*/
-template<int _SIZE, class _ENGIN_TYPE, class _STATE_TYPE, class _REAL_TYPE = float,
+template<int _SIZE, class _ENGIN_TYPE, class _STATE_TYPE=int, class _REAL_TYPE = float,
   std::enable_if_t<std::is_constructible_v<_ENGIN_TYPE, std::random_device::result_type>>* = nullptr>
 class Bandit {
   private:
@@ -174,14 +188,15 @@ int main() {
   { // 多腕バンディット問題のサンプル
     using REWARD_TYPE = double;
     using ACTION_TYPE = int;
+    using VALUE_FUNC_TYPE = std::unordered_map<ACTION_TYPE, REWARD_TYPE>;
 
     constexpr int BANDIT_SIZE = 10;
     constexpr unsigned long long FOR_COUNT = 100;
 
-    std::unordered_map<ACTION_TYPE, REWARD_TYPE> Q;
+    VALUE_FUNC_TYPE Q;
     auto env = Bandit<BANDIT_SIZE, std::mt19937, ACTION_TYPE, REWARD_TYPE>(0, 10, -1, 1);
-    auto policy = eps_greedy(Q, 0.8, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
-    // auto policy = ucb_1(Q, 0.01, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+    // auto policy = eps_greedy<ACTION_TYPE, REWARD_TYPE, VALUE_FUNC_TYPE>(Q, 0.8, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+    auto policy = ucb_1<ACTION_TYPE, REWARD_TYPE, VALUE_FUNC_TYPE>(Q, 0.01, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 
     ReinforcementLearning::For<ACTION_TYPE, REWARD_TYPE>(
       [&](){return policy();},
