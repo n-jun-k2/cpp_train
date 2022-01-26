@@ -201,11 +201,11 @@ int main() {
     ReinforcementLearning::For<ACTION_TYPE, REWARD_TYPE>(
       [&](){return policy();},
       [&](ACTION_TYPE T){return env(T);},
-      [&](REWARD_TYPE r, ACTION_TYPE s, unsigned long long i) {
+      [&](REWARD_TYPE r, ACTION_TYPE a, unsigned long long i) {
         // update.
         const double INC = 1.0;
-        auto mean = mean_1_14(Q[s], r, Q[s], Q[s] + INC);
-        Q[s] = mean;
+        auto mean = mean_1_14(Q[a], r, Q[a], Q[a] + INC);
+        Q[a] = mean;
         return i > FOR_COUNT;
       });
 
